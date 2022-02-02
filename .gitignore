@@ -1,0 +1,13 @@
+*.o
+*.dSYM
+*.pyc
+.fuse*
+libjdl*
+jdl
+
+# OS Generated #
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+*.swp
