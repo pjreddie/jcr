@@ -149,7 +149,7 @@ void *get_map_s(map *d, const char *key, void *def)
 void free_map(map *d)
 {
     size_t i;
-    for(i = 0; i < d->size; ++i){
+    for(i = 0; i < d->capacity; ++i){
         list *l = d->data[i];
         if(l){
             node *n = l->front;
