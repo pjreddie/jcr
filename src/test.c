@@ -1,5 +1,6 @@
 #include "jcr.h"
 
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -50,7 +51,27 @@ void test_list()
     TEST(pop_list(l) == (void *) 9875);
     TEST(pop_list(l) == (void *) 9874);
     TEST(l->size == 9874);
+
+    void **a = list_to_array(l);
+    TEST(a[0] == (void *) 0);
+    TEST(a[1] == (void *) 1);
+    TEST(a[9873] == (void *) 9873);
     free_list(l);
+    free(a);
+    printf("\n");
+}
+
+void test_map()
+{
+    printf("Testing map...\n");
+    map *m = make_map();
+    set_map_s(m, "key1", (void *) 420);
+    set_map_s(m, "key2", (void *) 1312);
+    TEST(get_map_s(m, "key1", 0) == (void *) 420);
+    TEST(get_map_s(m, "key3", 0) == (void *) 0);
+    TEST(set_map_s(m, "key2", (void *) 666) == (void *) 1312);
+    TEST(m->size == 2);
+    free_map(m);
     printf("\n");
 }
 
@@ -58,5 +79,6 @@ int main()
 {
     test_args();
     test_list();
+    test_map();
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
 }

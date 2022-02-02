@@ -53,9 +53,9 @@ static inline int compare_vector(const vector *v1, const vector *v2)
 map *make_map()
 {
     map *d = calloc(1, sizeof(map));
-    d->size = 63;
-    d->load = 0;
-    d->data = calloc(d->size, sizeof(list*));
+    d->capacity = 63;
+    d->size = 0;
+    d->data = calloc(d->capacity, sizeof(list*));
     return d;
 }
 
@@ -76,17 +76,17 @@ kvp *kvp_list_find(list *l, const vector *key)
 void expand_map(map *d)
 {
     size_t i;
-    size_t old_size = d->size;
+    size_t old_capacity = d->capacity;
     list **old_data = d->data;
-    d->size = (d->size+1)*2 - 1;
-    d->data = calloc(d->size, sizeof(list*));
-    for(i = 0; i < old_size; ++i){
+    d->capacity = (d->capacity+1)*2 - 1;
+    d->data = calloc(d->capacity, sizeof(list*));
+    for(i = 0; i < old_capacity; ++i){
         list *l = old_data[i];
         if(l){
             node *n = l->front;
             while(n){
                 kvp *pair = (kvp *) n->val;
-                size_t h = hash_vector(pair->key)%d->size;
+                size_t h = hash_vector(pair->key)%d->capacity;
                 d->data[h] = push_list(d->data[h], pair);
                 n = n->next;
             }
@@ -99,9 +99,9 @@ void expand_map(map *d)
 void *set_map(map *d, const vector *key, void *val)
 {
     void *old = 0;
-    if((double)d->load / d->size > .7) expand_map(d);
+    if((double)d->size / d->capacity > .7) expand_map(d);
 
-    size_t h = hash_vector(key) % d->size;
+    size_t h = hash_vector(key) % d->capacity;
     list *l = d->data[h];
     kvp *pair = kvp_list_find(l, key);
     if(pair){
@@ -112,7 +112,7 @@ void *set_map(map *d, const vector *key, void *val)
         pair->key = copy_vector(key);
         pair->val = val;
         d->data[h] = push_list(d->data[h], pair);
-        ++d->load;
+        ++d->size;
     }
     return old;
 }

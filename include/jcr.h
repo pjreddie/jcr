@@ -48,8 +48,8 @@ typedef struct kvp{
 } kvp;
 
 typedef struct map{
+    size_t capacity;
     size_t size;
-    size_t load;
     list **data;
 } map;
 
