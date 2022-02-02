@@ -19,6 +19,26 @@ int within_eps(double a, double b)
     return 0;
 }
 
+void test_io()
+{
+    printf("Testing io...\n");
+    FILE *fp = fopen("src/test.c", "r");
+    char *l = fgetl(fp);
+    TEST(strncmp(l, "#include \"jcr.h\"", 20) == 0);
+    while(l){
+        char *next = fgetl(fp);
+        if(!next){
+            TEST(strncmp(l, "// Tha End", 20) > 0);
+            TEST(strncmp(l, "// The End", 20) == 0);
+        }
+        free(l);
+        l = next;
+    }
+    fclose(fp);
+
+    printf("\n");
+}
+
 void test_args()
 {
     printf("Testing arg parser...\n");
@@ -109,9 +129,12 @@ void test_map()
 
 int main()
 {
+    test_io();
     test_args();
     test_list();
     test_vector();
     test_map();
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
 }
+
+// The End
