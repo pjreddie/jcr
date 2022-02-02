@@ -1,9 +1,7 @@
-//#include <stdlib.h>
-//#include <assert.h>
-//#include <stdio.h>
+#include "jcr.h"
+
 #include <string.h>
 #include <math.h>
-#include "jdl.h"
 
 
 #define EPS .0001
@@ -22,6 +20,7 @@ int within_eps(double a, double b)
 
 void test_args()
 {
+    printf("Testing arg parser...\n");
     char *argv[7] = {"-d","10","-test","-s","string", "-pi", "3.14159"};
     int argc = 7;
     TEST(find_arg(argc, argv, "-t") == 0);
@@ -33,12 +32,31 @@ void test_args()
     TEST(find_char_arg(argc, argv, "-t", 0) == 0);
     TEST(within_eps(find_float_arg(argc, argv, "-pi", 0), 3.14159));
     TEST(within_eps(find_float_arg(argc, argv, "-e", 2.71828), 2.71828));
+    printf("\n");
+}
+
+void test_list()
+{
+    printf("Testing list...\n");
+    list *l = make_list();
+    TEST(l->size == 0);
+    int i;
+    for(i = 0; i < 9876; ++i){
+        push_list(l, (void *) (size_t) i);   
+    }
+    TEST(l->size == 9876);
+    TEST(l->front->val == (void *) 0);
+    TEST(l->back->val == (void *) 9875);
+    TEST(pop_list(l) == (void *) 9875);
+    TEST(pop_list(l) == (void *) 9874);
+    TEST(l->size == 9874);
+    free_list(l);
+    printf("\n");
 }
 
 int main()
 {
-    printf("Testing arg parser...\n");
     test_args();
-    printf("\n");
+    test_list();
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
 }

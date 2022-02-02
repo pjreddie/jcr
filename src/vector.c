@@ -1,7 +1,6 @@
-//#include <stdio.h>
-//#include <stdarg.h>
+#include "jcr.h"
+
 #include <stdlib.h>
-#include "jdl.h"
 
 vector *make_vector(size_t capacity)
 {

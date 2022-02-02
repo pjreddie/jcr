@@ -1,8 +1,8 @@
+#include "jcr.h"
+
 #include <stdlib.h>
 #include <stdarg.h>
-#include <time.h>
 #include <sys/time.h>
-#include "jdl.h"
 
 void error(const char *s, ...)
 {

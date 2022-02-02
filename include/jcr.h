@@ -1,5 +1,5 @@
-#ifndef JDL_H
-#define JDL_H
+#ifndef JCR_H
+#define JCR_H
 #include <stdio.h>
 
 // vector
@@ -33,8 +33,8 @@ typedef struct list{
 
 list *make_list();
 
-list *list_push(list *, void *);
-void *list_pop(list *l);
+list *push_list(list *, void *);
+void *pop_list(list *l);
 
 void **list_to_array(list *l);
 

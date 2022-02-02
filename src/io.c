@@ -1,7 +1,8 @@
+#include "jcr.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include "jdl.h"
 
 char *fgetl(FILE *fp)
 {

@@ -1,5 +1,6 @@
+#include "jcr.h"
+
 #include <stdlib.h>
-#include "jdl.h"
 
 list *make_list()
 {
@@ -7,7 +8,7 @@ list *make_list()
 	return l;
 }
 
-void *list_pop(list *l)
+void *pop_list(list *l)
 {
     if(!l->back) return 0;
     node *b = l->back;
@@ -20,7 +21,7 @@ void *list_pop(list *l)
     return val;
 }
 
-list *list_push(list *l, void *val)
+list *push_list(list *l, void *val)
 {
     if(!l) l = make_list();
 	node *new = calloc(1, sizeof(node));

@@ -1,6 +1,7 @@
+#include "jcr.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "jdl.h"
 
 //djb2 hash function
 //taken from http://www.cse.yorku.ca/~oz/hash.html
@@ -86,7 +87,7 @@ void expand_map(map *d)
             while(n){
                 kvp *pair = (kvp *) n->val;
                 size_t h = hash_vector(pair->key)%d->size;
-                d->data[h] = list_push(d->data[h], pair);
+                d->data[h] = push_list(d->data[h], pair);
                 n = n->next;
             }
         }
@@ -110,7 +111,7 @@ void *set_map(map *d, const vector *key, void *val)
         pair = calloc(1, sizeof(kvp));
         pair->key = copy_vector(key);
         pair->val = val;
-        d->data[h] = list_push(d->data[h], pair);
+        d->data[h] = push_list(d->data[h], pair);
         ++d->load;
     }
     return old;

@@ -1,4 +1,4 @@
-# Joe's Data Structures Library (JDL) #
+# Joe's C Resources (JCR) #
 
 I keep pulling in random boilerplate C from various old projects so I'm gonna consolidate them in one place.
 

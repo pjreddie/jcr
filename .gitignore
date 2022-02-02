@@ -2,8 +2,10 @@
 *.dSYM
 *.pyc
 .fuse*
-libjdl*
-jdl
+*.a
+*.so
+libjcr*
+jcr
 
 # OS Generated #
 .DS_Store*

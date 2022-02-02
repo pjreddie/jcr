@@ -5,7 +5,7 @@ OBJ=vector.o list.o map.o io.o args.o utils.o
 EXECOBJ=test.o
 
 VPATH=./src/:./
-EXEC=jdl
+EXEC=jcr
 SLIB=lib${EXEC}.so
 ALIB=lib${EXEC}.a
 OBJDIR=./obj/
@@ -24,10 +24,7 @@ endif
 
 ifeq ($(DEBUG), 1) 
 OPTS=-O0 -g
-COMMON= -Iinclude/ -Isrc/ 
 endif
-
-CFLAGS+=$(OPTS)
 
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 EXECOBJS = $(addprefix $(OBJDIR), $(EXECOBJ))
@@ -35,17 +32,24 @@ DEPS = $(wildcard src/*.h) Makefile
 
 all: obj $(SLIB) $(ALIB) $(EXEC)
 
+debug: OPTS = -O0 -g
+debug: clean $(EXEC)
+
+valgrind: debug
+	valgrind --leak-check=full ./$(EXEC) 
+
+
 $(EXEC): $(EXECOBJS) $(ALIB)
-	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS) 
+	$(CC) $(COMMON) $(CFLAGS) $(OPTS) $^ -o $@ $(LDFLAGS) 
 
 $(ALIB): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 $(SLIB): $(OBJS)
-	$(CC) $(CFLAGS) -shared $^ -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OPTS) -shared $^ -o $@ $(LDFLAGS)
 
 $(OBJDIR)%.o: %.c $(DEPS)
-	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
+	$(CC) $(COMMON) $(CFLAGS) $(OPTS) -c $< -o $@
 
 obj:
 	mkdir -p obj
@@ -55,3 +59,5 @@ obj:
 clean:
 	rm -rf $(OBJS) $(EXECOBJS) $(SLIB) $(ALIB) $(EXEC) $(OBJDIR)/*
 
+test: $(EXEC)
+	./$(EXEC) test
