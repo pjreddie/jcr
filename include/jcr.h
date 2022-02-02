@@ -13,6 +13,7 @@ typedef struct {
 vector *make_vector(size_t capacity);
 vector *copy_vector(const vector *v);
 vector *concat_vectors(vector *a, vector *b);
+int compare_vector(const vector *v1, const vector *v2);
 void free_vector(vector *v);
 void *get_vector(const vector *v, const size_t i);
 void set_vector(vector *v, const size_t i, void * p);
