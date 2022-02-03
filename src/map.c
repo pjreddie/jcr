@@ -117,7 +117,7 @@ void *set_map_s(map *d, const char *key, void *val)
 
 void *get_map(map *d, const vector *key, void *def)
 {
-    size_t h = hash_vector(key) % d->size;
+    size_t h = hash_vector(key) % d->capacity;
     list *l = d->data[h];
     kvp *pair = kvp_list_find(l, key);
     if(pair){

@@ -117,6 +117,7 @@ void test_map()
 {
     printf("Testing map...\n");
     map *m = make_map();
+    TEST(get_map_s(m, "key1", 0) == (void *) 0);
     set_map_s(m, "key1", (void *) 420);
     set_map_s(m, "key2", (void *) 1312);
     TEST(get_map_s(m, "key1", 0) == (void *) 420);
