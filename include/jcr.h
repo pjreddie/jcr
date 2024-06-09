@@ -4,12 +4,15 @@
 
 // vector
 typedef struct {
-    void **data;
+    void *data;
+    size_t dsize;
     size_t size;
     size_t capacity;
 } vector;
 
+#define get_vector_type(type, vector, i) (*((type *) get_vector(vector, i)))
 
+vector *make_vector_dsize(size_t capacity, size_t dsize);
 vector *make_vector(size_t capacity);
 vector *copy_vector(const vector *v);
 vector *concat_vectors(vector *a, vector *b);

@@ -85,14 +85,14 @@ void test_vector()
 {
     printf("Testing vector...\n");
     vector *v = make_vector(0);
-    int i;
+    size_t i;
     for(i = 0; i < 9876; ++i){
-        append_vector(v, (void *)(size_t) i);
+        append_vector(v, &i);
     }
     TEST(v->size == 9876);
     TEST(v->capacity > v->size);
-    TEST(v->data[0] == (void *) 0);
-    TEST(v->data[2345] == (void *) 2345);
+    TEST(get_vector_type(void *, v, 0) == (void *) 0);
+    TEST(get_vector_type(void *, v, 2345) == (void *) 2345);
     
     vector *c = copy_vector(v);
     TEST(compare_vector(v, c) == 1);
@@ -100,12 +100,14 @@ void test_vector()
     vector *d = make_vector(0);
     TEST(compare_vector(d, c) == 0);
     for(i = 0; i < 9876; ++i){
-        append_vector(d, (void *)(size_t) i);
+        append_vector(d, &i);
     }
     TEST(compare_vector(d, c) == 1);
-    set_vector(d, 9875, 0);
+    i = 0;
+    set_vector(d, 9875, &i);
     TEST(compare_vector(d, c) == 0);
 
+    
 
     free_vector(v);
     free_vector(c);

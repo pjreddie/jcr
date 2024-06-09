@@ -1,5 +1,5 @@
 OPENMP=0
-DEBUG=0
+DEBUG=1
 
 OBJ=vector.o list.o map.o io.o args.o utils.o
 EXECOBJ=test.o

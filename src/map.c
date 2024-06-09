@@ -11,8 +11,8 @@ size_t hash_vector(const vector *v)
     size_t c;
 
     int i = 0;
-    for(i = 0; i < v->size; ++i){
-        c = (size_t) v->data[i];
+    for(i = 0; i < v->size * v->dsize; ++i){
+        c = (size_t) ((char *) v->data)[i];
         hash = ((hash << 5) + hash) ^ c; /* hash * 33 ^ c */
     }
 
@@ -21,21 +21,19 @@ size_t hash_vector(const vector *v)
 
 inline static char *vector_to_string(const vector *v)
 {
-    char *s = calloc(v->size + 1, sizeof(char));
+    char *s = calloc(v->size*v->dsize + 1, sizeof(char));
     int i;
-    for(i = 0; i < v->size; ++i){
-        s[i] = (int)(size_t)v->data[i];
-    }
+    memcpy(s, v->data, v->size*v->dsize);
     return s;
 }
 
 inline static vector *string_to_vector(const char *s)
 {
     int n = strlen(s);
-    vector *v = make_vector(n);
+    vector *v = make_vector_dsize(n, sizeof(char));
     int i;
     for(i = 0; i < n; ++i){
-        append_vector(v, (void *) (size_t) s[i]);
+        append_vector(v, s+i);
     }
     return v;
 }
