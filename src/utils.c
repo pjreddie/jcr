@@ -2,7 +2,13 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include <sys/time.h>
+
+float rand_unif()
+{
+    return (float)rand() / RAND_MAX;
+}
 
 void error(const char *s, ...)
 {
@@ -27,3 +33,11 @@ double now()
     }
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
+
+char *copy_string(char *s)
+{
+    char *copy = malloc(strlen(s)+1);
+    strncpy(copy, s, strlen(s)+1);
+    return copy;
+}
+

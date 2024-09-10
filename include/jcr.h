@@ -78,8 +78,10 @@ char *find_char_arg(int argc, char **argv, char *arg, char *def);
 char *fgetl(FILE *fp);
 
 // utils
+float rand_unif();
 double now();
 void error(const char *s, ...);
 void malloc_error();
+char *copy_string(char *s);
 
 #endif
