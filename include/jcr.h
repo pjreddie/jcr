@@ -47,7 +47,7 @@ void free_list_contents(list *l);
 
 // map
 typedef struct kvp{
-    vector *key;
+    char *key;
     void *val;
 } kvp;
 
@@ -58,11 +58,9 @@ typedef struct map{
 } map;
 
 map *make_map();
-void *set_map(map *d, const vector *key, void *val);
-void *get_map(map *d, const vector *key, void *def);
-
-void *set_map_s(map *d, const char *key, void *val);
-void *get_map_s(map *d, const char *key, void *def);
+int contains_map(map *d, const char *key);
+void *set_map(map *d, const char *key, void *val);
+void *get_map(map *d, const char *key, void *def);
 
 void free_map(map *d);
 void print_map(map *d);
@@ -82,6 +80,6 @@ float rand_unif();
 double now();
 void error(const char *s, ...);
 void malloc_error();
-char *copy_string(char *s);
+char *copy_string(const char *s);
 
 #endif

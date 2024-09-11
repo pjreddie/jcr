@@ -34,7 +34,7 @@ double now()
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 
-char *copy_string(char *s)
+char *copy_string(const char *s)
 {
     char *copy = malloc(strlen(s)+1);
     strncpy(copy, s, strlen(s)+1);

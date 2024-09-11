@@ -5,37 +5,14 @@
 
 //djb2 hash function
 //taken from http://www.cse.yorku.ca/~oz/hash.html
-size_t hash_vector(const vector *v)
+size_t djb2(const char *s)
 {
     size_t hash = 5381;
-    size_t c;
-
-    int i = 0;
-    for(i = 0; i < v->size * v->dsize; ++i){
-        c = (size_t) ((char *) v->data)[i];
+    size_t c = 0;
+    while((c = *s++)){
         hash = ((hash << 5) + hash) ^ c; /* hash * 33 ^ c */
     }
-
     return hash;
-}
-
-inline static char *vector_to_string(const vector *v)
-{
-    char *s = calloc(v->size*v->dsize + 1, sizeof(char));
-    int i;
-    memcpy(s, v->data, v->size*v->dsize);
-    return s;
-}
-
-inline static vector *string_to_vector(const char *s)
-{
-    int n = strlen(s);
-    vector *v = make_vector_dsize(n, sizeof(char));
-    int i;
-    for(i = 0; i < n; ++i){
-        append_vector(v, s+i);
-    }
-    return v;
 }
 
 map *make_map()
@@ -47,13 +24,13 @@ map *make_map()
     return d;
 }
 
-kvp *kvp_list_find(list *l, const vector *key)
+kvp *kvp_list_find(list *l, const char *key)
 {
     if(!l) return 0;
     node *n = l->front;
     while(n){
         kvp *pair = (kvp*) n->val;
-        if(compare_vector(key, pair->key)){
+        if(0 == strcmp(key, pair->key)){
             return pair;
         }
         n = n->next;
@@ -74,7 +51,7 @@ void expand_map(map *d)
             node *n = l->front;
             while(n){
                 kvp *pair = (kvp *) n->val;
-                size_t h = hash_vector(pair->key)%d->capacity;
+                size_t h = djb2(pair->key)%d->capacity;
                 d->data[h] = push_list(d->data[h], pair);
                 n = n->next;
             }
@@ -84,12 +61,12 @@ void expand_map(map *d)
     free(old_data);
 }
 
-void *set_map(map *d, const vector *key, void *val)
+void *set_map(map *d, const char *key, void *val)
 {
     void *old = 0;
     if((double)d->size / d->capacity > .7) expand_map(d);
 
-    size_t h = hash_vector(key) % d->capacity;
+    size_t h = djb2(key) % d->capacity;
     list *l = d->data[h];
     kvp *pair = kvp_list_find(l, key);
     if(pair){
@@ -97,7 +74,7 @@ void *set_map(map *d, const vector *key, void *val)
         pair->val = val;
     }else{
         pair = calloc(1, sizeof(kvp));
-        pair->key = copy_vector(key);
+        pair->key = copy_string(key);
         pair->val = val;
         d->data[h] = push_list(d->data[h], pair);
         ++d->size;
@@ -105,17 +82,20 @@ void *set_map(map *d, const vector *key, void *val)
     return old;
 }
 
-void *set_map_s(map *d, const char *key, void *val)
+int contains_map(map *d, const char *key)
 {
-    vector *v = string_to_vector(key);
-    void *old = set_map(d, v, val);
-    free_vector(v);
-    return old;
+    size_t h = djb2(key) % d->capacity;
+    list *l = d->data[h];
+    kvp *pair = kvp_list_find(l, key);
+    if(pair){
+        return 1;
+    }
+    return 0;
 }
 
-void *get_map(map *d, const vector *key, void *def)
+void *get_map(map *d, const char *key, void *def)
 {
-    size_t h = hash_vector(key) % d->capacity;
+    size_t h = djb2(key) % d->capacity;
     list *l = d->data[h];
     kvp *pair = kvp_list_find(l, key);
     if(pair){
@@ -124,14 +104,6 @@ void *get_map(map *d, const vector *key, void *def)
         return def;
     }
     return def;
-}
-
-void *get_map_s(map *d, const char *key, void *def)
-{
-    vector *v = string_to_vector(key);
-    void *val =  get_map(d, v, def);
-    free_vector(v);
-    return val;
 }
 
 void free_map(map *d)
@@ -143,7 +115,7 @@ void free_map(map *d)
             node *n = l->front;
             while(n){
                 kvp *pair = (kvp *) n->val;
-                free_vector(pair->key);
+                free(pair->key);
                 free(pair);
                 n = n->next;
             }
@@ -163,7 +135,7 @@ void print_map(map *d)
             node *n = l->front;
             while(n){
                 kvp *pair = (kvp *) n->val;
-                char *key = vector_to_string(pair->key);
+                char *key = pair->key;
                 printf("%s: %p\n", key, pair->val);
                 free(key);
                 n = n->next;

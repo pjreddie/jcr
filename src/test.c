@@ -119,13 +119,22 @@ void test_map()
 {
     printf("Testing map...\n");
     map *m = make_map();
-    TEST(get_map_s(m, "key1", 0) == (void *) 0);
-    set_map_s(m, "key1", (void *) 420);
-    set_map_s(m, "key2", (void *) 1312);
-    TEST(get_map_s(m, "key1", 0) == (void *) 420);
-    TEST(get_map_s(m, "key3", 0) == (void *) 0);
-    TEST(set_map_s(m, "key2", (void *) 666) == (void *) 1312);
+    TEST(get_map(m, "key1", 0) == (void *) 0);
+    set_map(m, "key1", (void *) 420);
+    set_map(m, "key2", (void *) 1312);
+    TEST(get_map(m, "key1", 0) == (void *) 420);
+    TEST(get_map(m, "key3", 0) == (void *) 0);
+    TEST(set_map(m, "key2", (void *) 666) == (void *) 1312);
     TEST(m->size == 2);
+    size_t i;
+    for(i = 0; i < 2000; ++i){
+        char buff[32];
+        sprintf(buff, "key%ld", i);
+        set_map(m, buff, (void*) i);
+    }
+    TEST(m->size == 2000);
+    TEST(get_map(m, "key1", 0) == (void *) 1);
+    TEST(get_map(m, "key1234", 0) == (void *) 1234);
     free_map(m);
     printf("\n");
 }
