@@ -106,6 +106,24 @@ void *get_map(map *d, const char *key, void *def)
     return def;
 }
 
+vector *keys_map(map *d)
+{
+    vector *v = make_vector(0);
+    size_t i;
+    for(i = 0; i < d->capacity; ++i){
+        list *l = d->data[i];
+        if(l){
+            node *n = l->front;
+            while(n){
+                kvp *pair = (kvp *) n->val;
+                append_vector(v, &pair->key);
+                n = n->next;
+            }
+        }
+    }
+    return v;
+}
+
 void free_map(map *d)
 {
     size_t i;
@@ -129,7 +147,7 @@ void free_map(map *d)
 void print_map(map *d)
 {
     size_t i;
-    for(i = 0; i < d->size; ++i){
+    for(i = 0; i < d->capacity; ++i){
         list *l = d->data[i];
         if(l){
             node *n = l->front;
@@ -137,7 +155,6 @@ void print_map(map *d)
                 kvp *pair = (kvp *) n->val;
                 char *key = pair->key;
                 printf("%s: %p\n", key, pair->val);
-                free(key);
                 n = n->next;
             }
         }

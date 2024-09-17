@@ -58,6 +58,7 @@ typedef struct map{
 } map;
 
 map *make_map();
+vector *keys_map(map *d);
 int contains_map(map *d, const char *key);
 void *set_map(map *d, const char *key, void *val);
 void *get_map(map *d, const char *key, void *def);
