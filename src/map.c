@@ -15,21 +15,21 @@ size_t djb2(const char *s)
     return hash;
 }
 
-map *make_map()
+Map *make_map()
 {
-    map *d = calloc(1, sizeof(map));
+    Map *d = calloc(1, sizeof(Map));
     d->capacity = 63;
     d->size = 0;
-    d->data = calloc(d->capacity, sizeof(list*));
+    d->data = calloc(d->capacity, sizeof(List*));
     return d;
 }
 
-kvp *kvp_list_find(list *l, const char *key)
+KVP *kvp_list_find(List *l, const char *key)
 {
     if(!l) return 0;
-    node *n = l->front;
+    Node *n = l->front;
     while(n){
-        kvp *pair = (kvp*) n->val;
+        KVP *pair = (KVP*) n->val;
         if(0 == strcmp(key, pair->key)){
             return pair;
         }
@@ -38,19 +38,19 @@ kvp *kvp_list_find(list *l, const char *key)
     return 0;
 }
 
-void expand_map(map *d)
+void expand_map(Map *d)
 {
     size_t i;
     size_t old_capacity = d->capacity;
-    list **old_data = d->data;
+    List **old_data = d->data;
     d->capacity = (d->capacity+1)*2 - 1;
-    d->data = calloc(d->capacity, sizeof(list*));
+    d->data = calloc(d->capacity, sizeof(List*));
     for(i = 0; i < old_capacity; ++i){
-        list *l = old_data[i];
+        List *l = old_data[i];
         if(l){
-            node *n = l->front;
+            Node *n = l->front;
             while(n){
-                kvp *pair = (kvp *) n->val;
+                KVP *pair = (KVP *) n->val;
                 size_t h = djb2(pair->key)%d->capacity;
                 d->data[h] = push_list(d->data[h], pair);
                 n = n->next;
@@ -61,19 +61,19 @@ void expand_map(map *d)
     free(old_data);
 }
 
-void *set_map(map *d, const char *key, void *val)
+void *set_map(Map *d, const char *key, void *val)
 {
     void *old = 0;
     if((double)d->size / d->capacity > .7) expand_map(d);
 
     size_t h = djb2(key) % d->capacity;
-    list *l = d->data[h];
-    kvp *pair = kvp_list_find(l, key);
+    List *l = d->data[h];
+    KVP *pair = kvp_list_find(l, key);
     if(pair){
         old = pair->val;
         pair->val = val;
     }else{
-        pair = calloc(1, sizeof(kvp));
+        pair = calloc(1, sizeof(KVP));
         pair->key = copy_string(key);
         pair->val = val;
         d->data[h] = push_list(d->data[h], pair);
@@ -82,22 +82,22 @@ void *set_map(map *d, const char *key, void *val)
     return old;
 }
 
-int contains_map(map *d, const char *key)
+int contains_map(Map *d, const char *key)
 {
     size_t h = djb2(key) % d->capacity;
-    list *l = d->data[h];
-    kvp *pair = kvp_list_find(l, key);
+    List *l = d->data[h];
+    KVP *pair = kvp_list_find(l, key);
     if(pair){
         return 1;
     }
     return 0;
 }
 
-void *get_map(map *d, const char *key, void *def)
+void *get_map(Map *d, const char *key, void *def)
 {
     size_t h = djb2(key) % d->capacity;
-    list *l = d->data[h];
-    kvp *pair = kvp_list_find(l, key);
+    List *l = d->data[h];
+    KVP *pair = kvp_list_find(l, key);
     if(pair){
         return pair->val;
     }else{
@@ -106,16 +106,16 @@ void *get_map(map *d, const char *key, void *def)
     return def;
 }
 
-vector *keys_map(map *d)
+Vector *keys_map(Map *d)
 {
-    vector *v = make_vector(0);
+    Vector *v = make_vector(0);
     size_t i;
     for(i = 0; i < d->capacity; ++i){
-        list *l = d->data[i];
+        List *l = d->data[i];
         if(l){
-            node *n = l->front;
+            Node *n = l->front;
             while(n){
-                kvp *pair = (kvp *) n->val;
+                KVP *pair = (KVP *) n->val;
                 append_vector(v, &pair->key);
                 n = n->next;
             }
@@ -124,15 +124,15 @@ vector *keys_map(map *d)
     return v;
 }
 
-void free_map(map *d)
+void free_map(Map *d)
 {
     size_t i;
     for(i = 0; i < d->capacity; ++i){
-        list *l = d->data[i];
+        List *l = d->data[i];
         if(l){
-            node *n = l->front;
+            Node *n = l->front;
             while(n){
-                kvp *pair = (kvp *) n->val;
+                KVP *pair = (KVP *) n->val;
                 free(pair->key);
                 free(pair);
                 n = n->next;
@@ -144,15 +144,15 @@ void free_map(map *d)
     free(d);
 }
 
-void print_map(map *d)
+void print_map(Map *d)
 {
     size_t i;
     for(i = 0; i < d->capacity; ++i){
-        list *l = d->data[i];
+        List *l = d->data[i];
         if(l){
-            node *n = l->front;
+            Node *n = l->front;
             while(n){
-                kvp *pair = (kvp *) n->val;
+                KVP *pair = (KVP *) n->val;
                 char *key = pair->key;
                 printf("%s: %p\n", key, pair->val);
                 n = n->next;

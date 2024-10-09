@@ -2,70 +2,100 @@
 #define JCR_H
 #include <stdio.h>
 
-// vector
+// Vector
 typedef struct {
     void *data;
     size_t dsize;
     size_t size;
     size_t capacity;
-} vector;
+} Vector;
 
-#define get_vector_type(type, vector, i) (*((type *) get_vector(vector, i)))
+#define get_vector_type(type, Vector, i) (*((type *) get_vector(Vector, i)))
 
-vector *make_vector_dsize(size_t capacity, size_t dsize);
-vector *make_vector(size_t capacity);
-vector *copy_vector(const vector *v);
-vector *concat_vectors(vector *a, vector *b);
-int compare_vector(const vector *v1, const vector *v2);
-void free_vector(vector *v);
-void *get_vector(const vector *v, const size_t i);
-void set_vector(vector *v, const size_t i, void * p);
-void append_vector(vector *v, void *p);
+Vector *make_vector_dsize(size_t capacity, size_t dsize);
+Vector *make_vector(size_t capacity);
+Vector *copy_vector(const Vector *v);
+Vector *concat_vectors(Vector *a, Vector *b);
+int compare_vector(const Vector *v1, const Vector *v2);
+void free_vector(Vector *v);
+void *get_vector(const Vector *v, const size_t i);
+void set_vector(Vector *v, const size_t i, void * p);
+void append_vector(Vector *v, void *p);
+
+// IVector
+typedef struct {
+    size_t size;
+    size_t capacity;
+    size_t *data;
+} IVector; // Vector for indices;
+
+IVector *make_ivector();
+IVector *copy_ivector(IVector *v);
+void free_ivector(IVector *v);
+size_t get_ivector(IVector *v, size_t i);
+void set_ivector(IVector *v, size_t i, size_t val);
+void append_ivector(IVector *v, size_t val);
+int compare_ivector(const IVector *v1, const IVector *v2);
+
+// PVector
+typedef struct {
+    size_t size;
+    size_t capacity;
+    void **data;
+} PVector; // Vector for indices;
+
+PVector *make_pvector();
+PVector *copy_pvector(PVector *v);
+void free_pvector(PVector *v);
+void *get_pvector(PVector *v, size_t i);
+void set_pvector(PVector *v, size_t i, void *val);
+void append_pvector(PVector *v, void *val);
+int compare_pvector(const PVector *v1, const PVector *v2);
 
 // list
-typedef struct node{
+typedef struct Node{
     void *val;
-    struct node *next;
-    struct node *prev;
-} node;
+    struct Node *next;
+    struct Node *prev;
+} Node;
 
-typedef struct list{
+typedef struct List{
     size_t size;
-    node *front;
-    node *back;
-} list;
+    Node *front;
+    Node *back;
+} List;
 
-list *make_list();
+List *make_list();
 
-list *push_list(list *, void *);
-void *pop_list(list *l);
+List *push_list(List *, void *);
+void *pop_list(List *l);
 
-void **list_to_array(list *l);
+void **list_to_array(List *l);
 
-void free_list(list *l);
-void free_list_contents(list *l);
+void free_list(List *l);
+void free_list_contents(List *l);
 
 // map
-typedef struct kvp{
+typedef struct{
     char *key;
     void *val;
-} kvp;
+} KVP;
 
-typedef struct map{
+typedef struct{
     size_t capacity;
     size_t size;
-    list **data;
-} map;
+    List **data;
+} Map;
 
-map *make_map();
-vector *keys_map(map *d);
-int contains_map(map *d, const char *key);
-void *set_map(map *d, const char *key, void *val);
-void *get_map(map *d, const char *key, void *def);
+Map *make_map();
+Vector *keys_map(Map *d);
+int contains_map(Map *d, const char *key);
+void *set_map(Map *d, const char *key, void *val);
+void *get_map(Map *d, const char *key, void *def);
 
-void free_map(map *d);
-void print_map(map *d);
-void free_map(map *d);
+void free_map(Map *d);
+void print_map(Map *d);
+void free_map(Map *d);
 
 // args
 int find_arg(int argc, char* argv[], char *arg);
@@ -78,7 +108,7 @@ char *fgetl(FILE *fp);
 
 // utils
 float rand_unif();
-double now();
+double system_time();
 void error(const char *s, ...);
 void malloc_error();
 char *copy_string(const char *s);

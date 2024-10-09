@@ -1,63 +1,73 @@
 OPENMP=0
 DEBUG=0
 
-OBJ=vector.o list.o map.o io.o args.o utils.o
-EXECOBJ=test.o
+NAME=jcr
+LIBSRC=vector list map io args utils ivector pvector
+EXECSRC=test
+LIBS=
 
 VPATH=./src/:./
-EXEC=jcr
-SLIB=lib${EXEC}.so
-ALIB=lib${EXEC}.a
 OBJDIR=./obj/
+BINDIR=./bin/
+SLIB=$(addprefix lib,$(addsuffix .so,$(NAME)))
+ALIB=$(addprefix lib,$(addsuffix .a,$(NAME)))
+EXEC=$(addprefix $(BINDIR),$(NAME))
+
+ifeq ($(LIBSRC),)
+SLIB=
+ALIB=
+endif
+ifeq ($(EXECSRC),)
+EXEC=
+endif
+
+LIBDIR=./../
+LIBDIRS=$(addprefix $(LIBDIR), $(LIBS))
+LIBINCLUDE=$(addsuffix /include/,$(addprefix -I, $(LIBDIRS)))
+LIBA=$(join $(addsuffix /lib,$(LIBDIRS)),$(addsuffix .a,$(LIBS)))
 
 CC=gcc
+CPP=g++
 AR=ar
 ARFLAGS=rcs
 OPTS=-Ofast
-LDFLAGS= -lm -pthread 
-COMMON= -Iinclude/ -Isrc/ 
-CFLAGS=-Wall -Wno-unknown-pragmas -Wfatal-errors -fPIC
-
-ifeq ($(OPENMP), 1) 
-CFLAGS+= -fopenmp
-endif
+LDFLAGS= -lm $(LIBA)
+COMMON= -Iinclude/ -Isrc/ $(LIBINCLUDE) 
+CFLAGS= -Wall -Wno-unknown-pragmas -Wfatal-errors -fPIC
 
 ifeq ($(DEBUG), 1) 
 OPTS=-O0 -g
 endif
 
-OBJS = $(addprefix $(OBJDIR), $(OBJ))
-EXECOBJS = $(addprefix $(OBJDIR), $(EXECOBJ))
+EXECOBJS = $(addprefix $(OBJDIR), $(addsuffix .o,$(EXECSRC)))
+LIBOBJS = $(addprefix $(OBJDIR), $(addsuffix .o,$(LIBSRC)))
 DEPS = $(wildcard src/*.h) Makefile 
 
-all: obj $(SLIB) $(ALIB) $(EXEC)
-
-debug: OPTS = -O0 -g
-debug: clean $(EXEC)
-
-valgrind: debug
-	valgrind --leak-check=full ./$(EXEC) 
-
+all: $(OBJDIR) $(BINDIR) $(SLIB) $(ALIB) $(EXEC)
 
 $(EXEC): $(EXECOBJS) $(ALIB)
 	$(CC) $(COMMON) $(CFLAGS) $(OPTS) $^ -o $@ $(LDFLAGS) 
 
-$(ALIB): $(OBJS)
+$(ALIB): $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
-$(SLIB): $(OBJS)
+$(SLIB): $(LIBOBJS)
 	$(CC) $(CFLAGS) $(OPTS) -shared $^ -o $@ $(LDFLAGS)
 
 $(OBJDIR)%.o: %.c $(DEPS)
 	$(CC) $(COMMON) $(CFLAGS) $(OPTS) -c $< -o $@
 
-obj:
-	mkdir -p obj
+$(OBJDIR)%.o: %.cpp $(DEPS)
+	$(CPP) $(COMMON) $(CFLAGS) $(OPTS) -c $< -o $@
+
+$(BINDIR):
+	mkdir -p $(BINDIR)
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
 .PHONY: clean
 
 clean:
-	rm -rf $(OBJS) $(EXECOBJS) $(SLIB) $(ALIB) $(EXEC) $(OBJDIR)/*
+	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJS) $(LIBOBJS) $(OBJDIR)/* $(BINDIR)/*
 
-test: $(EXEC)
-	./$(EXEC) test

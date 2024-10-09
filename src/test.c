@@ -59,7 +59,7 @@ void test_args()
 void test_list()
 {
     printf("Testing list...\n");
-    list *l = make_list();
+    List *l = make_list();
     TEST(l->size == 0);
     int i;
     for(i = 0; i < 9876; ++i){
@@ -81,10 +81,74 @@ void test_list()
     printf("\n");
 }
 
+void test_ivector()
+{
+    printf("Testing index vector (IVector)...\n");
+    IVector *v = make_ivector();
+    size_t i;
+    for(i = 0; i < 9876; ++i){
+        append_ivector(v, i);
+    }
+    TEST(v->size == 9876);
+    TEST(v->capacity > v->size);
+    TEST(get_ivector(v, 0) == 0);
+    TEST(get_ivector(v, 2345) == 2345);
+    
+    IVector *c = copy_ivector(v);
+    TEST(compare_ivector(v, c) == 1);
+
+    IVector *d = make_ivector();
+    TEST(compare_ivector(d, c) == 0);
+    for(i = 0; i < 9876; ++i){
+        append_ivector(d, i);
+    }
+    TEST(compare_ivector(d, c) == 1);
+    i = 0;
+    set_ivector(d, 9875, i);
+    TEST(compare_ivector(d, c) == 0);
+
+    free_ivector(v);
+    free_ivector(c);
+    free_ivector(d);
+    printf("\n");
+}
+
+void test_pvector()
+{
+    printf("Testing pointer vector (PVector)...\n");
+    PVector *v = make_pvector();
+    size_t i;
+    for(i = 0; i < 9876; ++i){
+        append_pvector(v, (void *)i);
+    }
+    TEST(v->size == 9876);
+    TEST(v->capacity > v->size);
+    TEST(get_pvector(v, 0) == (void *) 0);
+    TEST(get_pvector(v, 2345) == (void *) 2345);
+    
+    PVector *c = copy_pvector(v);
+    TEST(compare_pvector(v, c) == 1);
+
+    PVector *d = make_pvector();
+    TEST(compare_pvector(d, c) == 0);
+    for(i = 0; i < 9876; ++i){
+        append_pvector(d, (void *) i);
+    }
+    TEST(compare_pvector(d, c) == 1);
+    i = 0;
+    set_pvector(d, 9875, (void *) i);
+    TEST(compare_pvector(d, c) == 0);
+
+    free_pvector(v);
+    free_pvector(c);
+    free_pvector(d);
+    printf("\n");
+}
+
 void test_vector()
 {
     printf("Testing vector...\n");
-    vector *v = make_vector(0);
+    Vector *v = make_vector(0);
     size_t i;
     for(i = 0; i < 9876; ++i){
         append_vector(v, &i);
@@ -94,10 +158,10 @@ void test_vector()
     TEST(get_vector_type(void *, v, 0) == (void *) 0);
     TEST(get_vector_type(void *, v, 2345) == (void *) 2345);
     
-    vector *c = copy_vector(v);
+    Vector *c = copy_vector(v);
     TEST(compare_vector(v, c) == 1);
 
-    vector *d = make_vector(0);
+    Vector *d = make_vector(0);
     TEST(compare_vector(d, c) == 0);
     for(i = 0; i < 9876; ++i){
         append_vector(d, &i);
@@ -118,7 +182,7 @@ void test_vector()
 void test_map()
 {
     printf("Testing map...\n");
-    map *m = make_map();
+    Map *m = make_map();
     TEST(get_map(m, "key1", 0) == (void *) 0);
     set_map(m, "key1", (void *) 420);
     set_map(m, "key2", (void *) 1312);
@@ -145,6 +209,8 @@ int main()
     test_args();
     test_list();
     test_vector();
+    test_ivector();
+    test_pvector();
     test_map();
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
 }

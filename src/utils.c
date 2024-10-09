@@ -25,7 +25,7 @@ void malloc_error()
     exit(-1);
 }
 
-double now()
+double system_time()
 {
     struct timeval time;
     if (gettimeofday(&time,NULL)){

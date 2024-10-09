@@ -2,16 +2,16 @@
 
 #include <stdlib.h>
 
-list *make_list()
+List *make_list()
 {
-	list *l = calloc(1, sizeof(list));
+	List *l = calloc(1, sizeof(List));
 	return l;
 }
 
-void *pop_list(list *l)
+void *pop_list(List *l)
 {
     if(!l->back) return 0;
-    node *b = l->back;
+    Node *b = l->back;
     void *val = b->val;
     l->back = b->prev;
     if(l->back) l->back->next = 0;
@@ -21,10 +21,10 @@ void *pop_list(list *l)
     return val;
 }
 
-list *push_list(list *l, void *val)
+List *push_list(List *l, void *val)
 {
     if(!l) l = make_list();
-	node *new = calloc(1, sizeof(node));
+	Node *new = calloc(1, sizeof(Node));
 	new->val = val;
 	new->next = 0;
 
@@ -40,9 +40,9 @@ list *push_list(list *l, void *val)
     return l;
 }
 
-void free_node(node *n)
+void free_node(Node *n)
 {
-	node *next;
+	Node *next;
 	while(n) {
 		next = n->next;
 		free(n);
@@ -50,7 +50,7 @@ void free_node(node *n)
 	}
 }
 
-void free_list(list *l)
+void free_list(List *l)
 {
     if(l){
         free_node(l->front);
@@ -58,10 +58,10 @@ void free_list(list *l)
     }
 }
 
-void free_list_contents(list *l)
+void free_list_contents(List *l)
 {
     if(l){
-        node *n = l->front;
+        Node *n = l->front;
         while(n){
             free(n->val);
             n = n->next;
@@ -69,11 +69,11 @@ void free_list_contents(list *l)
     }
 }
 
-void **list_to_array(list *l)
+void **list_to_array(List *l)
 {
     void **a = calloc(l->size, sizeof(void*));
     int count = 0;
-    node *n = l->front;
+    Node *n = l->front;
     while(n){
         a[count++] = n->val;
         n = n->next;
