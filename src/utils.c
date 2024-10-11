@@ -1,13 +1,31 @@
 #include "jcr.h"
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
 #include <sys/time.h>
 
+uint64_t rand64()
+{
+    const __uint128_t M1 = 0xa4c1f32680f70c55;
+    const __uint128_t M2 = ((__uint128_t)0x2d99787926d46932) << 64;
+    const __uint128_t MULTIPLIER = M1+M2;
+    static __uint128_t state = 1;
+    state *= MULTIPLIER;
+    state += MULTIPLIER;
+    return state >> 64;
+
+}
+
+uint32_t rand32()
+{
+    return (uint32_t)(rand64()>>32);
+}
+
 float rand_unif()
 {
-    return (float)rand() / RAND_MAX;
+    return (float)rand32() / ((uint32_t)0xFFFFFFFF);
 }
 
 void error(const char *s, ...)

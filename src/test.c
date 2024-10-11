@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 #include <math.h>
 
 
@@ -199,7 +200,51 @@ void test_map()
     TEST(m->size == 2000);
     TEST(get_map(m, "key1", 0) == (void *) 1);
     TEST(get_map(m, "key1234", 0) == (void *) 1234);
+    TEST(remove_map(m, "key1234", 0) == (void *) 1234);
+    TEST(m->size == 1999);
+    TEST(get_map(m, "key1234", 0) == (void *) 0);
+    TEST(remove_map(m, "key1234", 0) == (void *) 0);
+    TEST(m->size == 1999);
+    for(i = 0; i < 2000; ++i){
+        char buff[32];
+        sprintf(buff, "key%ld", i);
+        remove_map(m, buff, (void*) 0);
+    }
+    TEST(m->size == 0);
+    for(i = 0; i < 2000; ++i){
+        char buff[32];
+        sprintf(buff, "key%ld", i);
+        set_map(m, buff, (void*) i);
+    }
+    TEST(m->size == 2000);
+    TEST(get_map(m, "key1", 0) == (void *) 1);
+    TEST(get_map(m, "key1234", 0) == (void *) 1234);
+
     free_map(m);
+    printf("\n");
+}
+
+void test_rand_unif()
+{
+    printf("Testing rand_unif...\n");
+    int i;
+    int N = 100000;
+    float sum = 0;
+    float min = FLT_MAX;
+    float max = FLT_MIN;
+    for(i = 0; i < N; ++i){
+        float r = rand_unif();
+        if(r < min) min = r;
+        if(r > max) max = r;
+        sum += r;
+    }
+    TEST(min < 0.001);
+    TEST(min >= 0);
+    TEST(max > 0.999);
+    TEST(max <= 1);
+    TEST(.499 < sum/N);
+    TEST(sum/N < .501);
+    printf("%f\n", sum/N);
     printf("\n");
 }
 
@@ -212,6 +257,7 @@ int main()
     test_ivector();
     test_pvector();
     test_map();
+    test_rand_unif();
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
 }
 

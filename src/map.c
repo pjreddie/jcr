@@ -106,6 +106,34 @@ void *get_map(Map *d, const char *key, void *def)
     return def;
 }
 
+void *remove_map(Map *d, const char *key, void *def)
+{
+    size_t h = djb2(key) % d->capacity;
+    List *l = d->data[h];
+
+    if(!l) return def;
+    Node *n = l->front;
+
+    while(n){
+        KVP *pair = (KVP*) n->val;
+        if(0 == strcmp(key, pair->key)){
+            void *v = pair->val;
+            --l->size;
+            if(l->front == n) l->front = n->next;
+            if(l->back == n) l->back = n->prev;
+            if(n->prev) n->prev->next = n->next;
+            if(n->next) n->next->prev = n->prev;
+            free(n);
+            free(pair->key);
+            free(pair);
+            --d->size;
+            return v;
+        }
+        n = n->next;
+    }
+    return def;
+}
+
 Vector *keys_map(Map *d)
 {
     Vector *v = make_vector(0);

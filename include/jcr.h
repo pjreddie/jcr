@@ -1,6 +1,7 @@
 #ifndef JCR_H
 #define JCR_H
 #include <stdio.h>
+#include <stdint.h>
 
 // Vector
 typedef struct {
@@ -92,6 +93,7 @@ Vector *keys_map(Map *d);
 int contains_map(Map *d, const char *key);
 void *set_map(Map *d, const char *key, void *val);
 void *get_map(Map *d, const char *key, void *def);
+void *remove_map(Map *d, const char *key, void *def);
 
 void free_map(Map *d);
 void print_map(Map *d);
@@ -107,6 +109,8 @@ char *find_char_arg(int argc, char **argv, char *arg, char *def);
 char *fgetl(FILE *fp);
 
 // utils
+uint64_t rand64();
+uint32_t rand32();
 float rand_unif();
 double system_time();
 void error(const char *s, ...);
