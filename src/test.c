@@ -227,8 +227,9 @@ void test_map()
 void test_rand_unif()
 {
     printf("Testing rand_unif...\n");
+    srand64(123456);
     int i;
-    int N = 100000;
+    int N = 1000000;
     float sum = 0;
     float min = FLT_MAX;
     float max = FLT_MIN;

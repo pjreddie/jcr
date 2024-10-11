@@ -109,6 +109,7 @@ char *find_char_arg(int argc, char **argv, char *arg, char *def);
 char *fgetl(FILE *fp);
 
 // utils
+void srand64(uint64_t seed);
 uint64_t rand64();
 uint32_t rand32();
 float rand_unif();
