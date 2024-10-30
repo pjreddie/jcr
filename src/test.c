@@ -149,7 +149,7 @@ void test_pvector()
 void test_vector()
 {
     printf("Testing vector...\n");
-    Vector *v = make_vector(0);
+    Vector *v = make_vector();
     size_t i;
     for(i = 0; i < 9876; ++i){
         append_vector(v, &i);
@@ -162,7 +162,7 @@ void test_vector()
     Vector *c = copy_vector(v);
     TEST(compare_vector(v, c) == 1);
 
-    Vector *d = make_vector(0);
+    Vector *d = make_vector();
     TEST(compare_vector(d, c) == 0);
     for(i = 0; i < 9876; ++i){
         append_vector(d, &i);
@@ -224,6 +224,44 @@ void test_map()
     printf("\n");
 }
 
+void test_imap()
+{
+    printf("Testing imap...\n");
+    IMap *m = make_imap();
+    TEST(get_imap(m, 1, 0) == (void *) 0);
+    set_imap(m, 1, (void *) 420);
+    set_imap(m, 2, (void *) 1312);
+    TEST(get_imap(m, 1, 0) == (void *) 420);
+    TEST(get_imap(m, 3, 0) == (void *) 0);
+    TEST(set_imap(m, 2, (void *) 666) == (void *) 1312);
+    TEST(m->size == 2);
+    size_t i;
+    for(i = 0; i < 2000; ++i){
+        set_imap(m, i, (void*) i);
+    }
+    TEST(m->size == 2000);
+    TEST(get_imap(m, 1, 0) == (void *) 1);
+    TEST(get_imap(m, 1234, 0) == (void *) 1234);
+    TEST(remove_imap(m, 1234, 0) == (void *) 1234);
+    TEST(m->size == 1999);
+    TEST(get_imap(m, 1234, 0) == (void *) 0);
+    TEST(remove_imap(m, 1234, 0) == (void *) 0);
+    TEST(m->size == 1999);
+    for(i = 0; i < 2000; ++i){
+        remove_imap(m, i, (void*) 0);
+    }
+    TEST(m->size == 0);
+    for(i = 0; i < 2000; ++i){
+        set_imap(m, i, (void*) i);
+    }
+    TEST(m->size == 2000);
+    TEST(get_imap(m, 1, 0) == (void *) 1);
+    TEST(get_imap(m, 1234, 0) == (void *) 1234);
+
+    free_imap(m);
+    printf("\n");
+}
+
 void test_rand_unif()
 {
     printf("Testing rand_unif...\n");
@@ -249,17 +287,29 @@ void test_rand_unif()
     printf("\n");
 }
 
-int main()
+int rand64stream();
+
+int main(int argc, char **argv)
 {
-    test_io();
-    test_args();
-    test_list();
-    test_vector();
-    test_ivector();
-    test_pvector();
-    test_map();
-    test_rand_unif();
-    printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
+    if (argc < 2) {
+        error("Usage: %s [test|stream]\n", argv[0]);
+    }
+
+    if (0 == strcmp("test", argv[1])){
+        test_io();
+        test_args();
+        test_list();
+        test_vector();
+        test_ivector();
+        test_pvector();
+        test_map();
+        test_imap();
+        test_rand_unif();
+        printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
+    } else if (0 == strcmp("stream", argv[1])){
+        return rand64stream();
+    }
+    return 0;
 }
 
 // The End

@@ -13,8 +13,8 @@ typedef struct {
 
 #define get_vector_type(type, Vector, i) (*((type *) get_vector(Vector, i)))
 
-Vector *make_vector_dsize(size_t capacity, size_t dsize);
-Vector *make_vector(size_t capacity);
+Vector *make_vector_dsize(size_t dsize);
+Vector *make_vector();
 Vector *copy_vector(const Vector *v);
 Vector *concat_vectors(Vector *a, Vector *b);
 int compare_vector(const Vector *v1, const Vector *v2);
@@ -76,6 +76,29 @@ void **list_to_array(List *l);
 void free_list(List *l);
 void free_list_contents(List *l);
 
+// imap
+typedef struct{
+    uint64_t id;
+    void *val;
+} IVP;
+
+typedef struct{
+    size_t capacity;
+    size_t size;
+    List **data;
+} IMap;
+
+IMap *make_imap();
+IVector *keys_imap(IMap *d);
+int contains_imap(IMap *d, const uint64_t id);
+void *set_imap(IMap *d, const uint64_t id, void *val);
+void *get_imap(IMap *d, const uint64_t id, void *def);
+void *remove_imap(IMap *d, const uint64_t id, void *def);
+
+void free_imap(IMap *d);
+void print_imap(IMap *d);
+void free_imap(IMap *d);
+
 // map
 typedef struct{
     char *key;
@@ -89,7 +112,7 @@ typedef struct{
 } Map;
 
 Map *make_map();
-Vector *keys_map(Map *d);
+PVector *keys_map(Map *d);
 int contains_map(Map *d, const char *key);
 void *set_map(Map *d, const char *key, void *val);
 void *get_map(Map *d, const char *key, void *def);
@@ -112,6 +135,7 @@ char *fgetl(FILE *fp);
 void srand64(uint64_t seed);
 uint64_t rand64();
 uint32_t rand32();
+uint64_t rand64_i(uint64_t seed);
 float rand_unif();
 double system_time();
 void error(const char *s, ...);

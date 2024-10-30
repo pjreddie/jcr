@@ -2,8 +2,8 @@ OPENMP=0
 DEBUG=0
 
 NAME=jcr
-LIBSRC=vector list map io args utils ivector pvector
-EXECSRC=test
+LIBSRC=vector list map io args utils ivector pvector imap
+EXECSRC=test r64stream
 LIBS=
 
 VPATH=./src/:./

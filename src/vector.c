@@ -16,29 +16,33 @@ int compare_vector(const Vector *v1, const Vector *v2)
     return 1;
 }
 
-Vector *make_vector_dsize(size_t capacity, size_t dsize)
+Vector *make_vector_(size_t capacity, size_t size, size_t dsize, void **data)
 {
-    if (!capacity) capacity = 16;
-    if (!dsize) dsize = sizeof(void *);
+    if(!capacity) capacity = 16;
+    if(!dsize) dsize = sizeof(void *);
+
     Vector *v = calloc(1, sizeof(Vector));
     v->data = calloc(capacity, dsize);
     v->capacity = capacity;
     v->dsize = dsize;
-    v->size = 0;
+    v->size = size;
+    if(data && size) memcpy(v->data, data, size*dsize);
     return v;
 }
 
-Vector *make_vector(size_t capacity)
+Vector *make_vector_dsize(size_t dsize)
 {
-    return make_vector_dsize(capacity, sizeof(void *));
+    return make_vector_(0,0,dsize,0);
+}
+
+Vector *make_vector()
+{
+    return make_vector_(0,0,0,0);
 }
 
 Vector *copy_vector(const Vector *v)
 {
-    Vector *c = make_vector_dsize(v->capacity, v->dsize);
-    c->size = v->size;
-    memcpy(c->data, v->data, c->size*c->dsize);
-    return c;
+    return make_vector_(v->capacity, v->size, v->dsize, v->data);
 }
 
 Vector *concat_vectors(Vector *a, Vector *b)
@@ -46,8 +50,7 @@ Vector *concat_vectors(Vector *a, Vector *b)
     if ( a->dsize != b->dsize ) {
         error("Mismatch data type size in concat: %ld vs %ld", a->dsize, b->dsize);
     }
-    Vector *c = make_vector_dsize(a->size + b->size + 1, a->dsize);
-    c->size = a->size + b->size;
+    Vector *c = make_vector_(a->capacity + b->capacity, a->size + b->size, a->dsize, 0);
     memcpy(c->data, a->data, a->size*a->dsize);
     memcpy(c->data + a->size*a->dsize, b->data, b->size*b->dsize);
     return c;

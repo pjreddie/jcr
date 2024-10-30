@@ -3,34 +3,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-//djb2 hash function
-//taken from http://www.cse.yorku.ca/~oz/hash.html
-size_t djb2(const char *s)
+IMap *make_imap()
 {
-    size_t hash = 5381;
-    size_t c = 0;
-    while((c = *s++)){
-        hash = ((hash << 5) + hash) ^ c; /* hash * 33 ^ c */
-    }
-    return hash;
-}
-
-Map *make_map()
-{
-    Map *d = calloc(1, sizeof(Map));
+    IMap *d = calloc(1, sizeof(IMap));
     d->capacity = 63;
     d->size = 0;
     d->data = calloc(d->capacity, sizeof(List*));
     return d;
 }
 
-KVP *kvp_list_find(List *l, const char *key)
+IVP *ivp_list_find(List *l, const uint64_t id)
 {
     if(!l) return 0;
     Node *n = l->front;
     while(n){
-        KVP *pair = (KVP*) n->val;
-        if(0 == strcmp(key, pair->key)){
+        IVP *pair = (IVP*) n->val;
+        if(id == pair->id){
             return pair;
         }
         n = n->next;
@@ -38,7 +26,7 @@ KVP *kvp_list_find(List *l, const char *key)
     return 0;
 }
 
-void expand_map(Map *d)
+void expand_imap(IMap *d)
 {
     size_t i;
     size_t old_capacity = d->capacity;
@@ -50,8 +38,8 @@ void expand_map(Map *d)
         if(l){
             Node *n = l->front;
             while(n){
-                KVP *pair = (KVP *) n->val;
-                size_t h = djb2(pair->key)%d->capacity;
+                IVP *pair = (IVP *) n->val;
+                size_t h = pair->id % d->capacity;
                 d->data[h] = push_list(d->data[h], pair);
                 n = n->next;
             }
@@ -61,20 +49,20 @@ void expand_map(Map *d)
     free(old_data);
 }
 
-void *set_map(Map *d, const char *key, void *val)
+void *set_imap(IMap *d, const uint64_t id, void *val)
 {
     void *old = 0;
-    if((double)d->size / d->capacity > .7) expand_map(d);
+    if((double)d->size / d->capacity > .7) expand_imap(d);
 
-    size_t h = djb2(key) % d->capacity;
+    size_t h = id % d->capacity;
     List *l = d->data[h];
-    KVP *pair = kvp_list_find(l, key);
+    IVP *pair = ivp_list_find(l, id);
     if(pair){
         old = pair->val;
         pair->val = val;
     }else{
-        pair = calloc(1, sizeof(KVP));
-        pair->key = copy_string(key);
+        pair = calloc(1, sizeof(IVP));
+        pair->id = id;
         pair->val = val;
         d->data[h] = push_list(d->data[h], pair);
         ++d->size;
@@ -82,22 +70,22 @@ void *set_map(Map *d, const char *key, void *val)
     return old;
 }
 
-int contains_map(Map *d, const char *key)
+int contains_imap(IMap *d, const uint64_t id)
 {
-    size_t h = djb2(key) % d->capacity;
+    size_t h = id % d->capacity;
     List *l = d->data[h];
-    KVP *pair = kvp_list_find(l, key);
+    IVP *pair = ivp_list_find(l, id);
     if(pair){
         return 1;
     }
     return 0;
 }
 
-void *get_map(Map *d, const char *key, void *def)
+void *get_imap(IMap *d, const uint64_t id, void *def)
 {
-    size_t h = djb2(key) % d->capacity;
+    size_t h = id % d->capacity;
     List *l = d->data[h];
-    KVP *pair = kvp_list_find(l, key);
+    IVP *pair = ivp_list_find(l, id);
     if(pair){
         return pair->val;
     }else{
@@ -106,17 +94,17 @@ void *get_map(Map *d, const char *key, void *def)
     return def;
 }
 
-void *remove_map(Map *d, const char *key, void *def)
+void *remove_imap(IMap *d, const uint64_t id, void *def)
 {
-    size_t h = djb2(key) % d->capacity;
+    size_t h = id % d->capacity;
     List *l = d->data[h];
 
     if(!l) return def;
     Node *n = l->front;
 
     while(n){
-        KVP *pair = (KVP*) n->val;
-        if(0 == strcmp(key, pair->key)){
+        IVP *pair = (IVP*) n->val;
+        if(id == pair->id){
             void *v = pair->val;
             --l->size;
             if(l->front == n) l->front = n->next;
@@ -124,7 +112,6 @@ void *remove_map(Map *d, const char *key, void *def)
             if(n->prev) n->prev->next = n->next;
             if(n->next) n->next->prev = n->prev;
             free(n);
-            free(pair->key);
             free(pair);
             --d->size;
             return v;
@@ -134,17 +121,17 @@ void *remove_map(Map *d, const char *key, void *def)
     return def;
 }
 
-PVector *keys_map(Map *d)
+IVector *keys_imap(IMap *d)
 {
-    PVector *v = make_pvector();
+    IVector *v = make_ivector();
     size_t i;
     for(i = 0; i < d->capacity; ++i){
         List *l = d->data[i];
         if(l){
             Node *n = l->front;
             while(n){
-                KVP *pair = (KVP *) n->val;
-                append_pvector(v, pair->key);
+                IVP *pair = (IVP *) n->val;
+                append_ivector(v, pair->id);
                 n = n->next;
             }
         }
@@ -152,7 +139,7 @@ PVector *keys_map(Map *d)
     return v;
 }
 
-void free_map(Map *d)
+void free_imap(IMap *d)
 {
     size_t i;
     for(i = 0; i < d->capacity; ++i){
@@ -160,8 +147,7 @@ void free_map(Map *d)
         if(l){
             Node *n = l->front;
             while(n){
-                KVP *pair = (KVP *) n->val;
-                free(pair->key);
+                IVP *pair = (IVP *) n->val;
                 free(pair);
                 n = n->next;
             }
@@ -172,7 +158,7 @@ void free_map(Map *d)
     free(d);
 }
 
-void print_map(Map *d)
+void print_imap(IMap *d)
 {
     size_t i;
     for(i = 0; i < d->capacity; ++i){
@@ -180,9 +166,8 @@ void print_map(Map *d)
         if(l){
             Node *n = l->front;
             while(n){
-                KVP *pair = (KVP *) n->val;
-                char *key = pair->key;
-                printf("%s: %p\n", key, pair->val);
+                IVP *pair = (IVP *) n->val;
+                printf("%llu: %p\n", pair->id, pair->val);
                 n = n->next;
             }
         }
